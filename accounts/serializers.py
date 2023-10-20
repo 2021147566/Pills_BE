@@ -15,7 +15,7 @@ class MyPageSerializer(serializers.ModelSerializer):
     drugs = serializers.SerializerMethodField()
 
     def get_drugs(self, obj):
-        wishes = obj.drugs.all().order_by('-created_at')
+        drugs = obj.drugs.all().order_by('-created_at')
         return DrugsSerializer(instance=drugs, many=True).data
 
     class Meta:
