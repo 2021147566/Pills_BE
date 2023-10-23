@@ -44,6 +44,7 @@ class User(AbstractBaseUser):
         max_length=100, null=True, blank=True)
     is_active = models.BooleanField('계정 활성화 여부', default=False)
     is_admin = models.BooleanField('관리자 여부', default=False)
+    updated_at = models.DateField('수정일', auto_now=True)
 
     objects = UserManager()
 

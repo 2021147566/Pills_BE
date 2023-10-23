@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
+from accounts.serializers import MyPageSerializer, ProfileSerializer
 from .serializers import UserSerializer, LoginSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import (
@@ -11,6 +12,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import RetrieveUpdateAPIView, get_object_or_404
 from rest_framework.response import Response
 from accounts.models import User
+from django.contrib.auth.hashers import check_password
+
 # 새로운 사용자를 생성한 후에 이메일 확인 토큰을 생성하고 사용자 모델에 저장합니다. 이메일 인증 링크를 사용자의 이메일 주소로 전송합니다.
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -22,9 +25,55 @@ from .tasks import send_verification_email
 from .tasks import test_task
 from django.http import HttpRequest
 from rest_framework import views
-from django.contrib.auth.hashers import check_password
+
+class MyPageView(APIView):
+    def get(self, request, user_username):
+        user = get_object_or_404(User, username=user_username)
+        serializer = MyPageSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class ProfileView(APIView):
+    def get(self, request, user_id):
+        """사용자의 프로필을 받아 보여줍니다."""
+        profile = get_object_or_404(User, id=user_id)
+        if request.user.email == profile.email:
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        if request.user == user:
+            if 'present_pw' in request.data:  # 비밀번호 변경할 때
+                # 현재 비밀번호가 일치하는지 확인.
+                if check_password(request.data['present_pw'], user.password) == True:
+                    # 새로 입력한 비밀번호와 비밀번호 확인이 일치하는지 확인.
+                    if request.data['password'] == request.data['password_check']:
+                        serializer = UserSerializer(
+                            user, data=request.data, partial=True)
+                        if serializer.is_valid():
+                            serializer.save()
+                            return Response(serializer.data, status=status.HTTP_200_OK)
+                        else:
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response({"message": "비밀번호가 일치하지 않습니다. 다시 입력하세요."}, status=status.HTTP_403_FORBIDDEN)
+                else:
+                    return Response({"message": "현재 비밀번호를 확인하세요."}, status=status.HTTP_403_FORBIDDEN)
+
+            else:  # 비밀번호는 변경하지 않을 때
+                serializer = UserSerializer(
+                    user, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+          
 class EmailVerificationView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -72,21 +121,6 @@ class AccountCreate(APIView):
             print('send_verification_email 완료')
 
             return Response({"message ": "가입완료! 이메일 인증을 진행해주세요"}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"massage" : f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
-    
-
-class ProfileView(APIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserSerializer
-    def patch(self, request, *args, **kwargs):
-        serializer_data = request.data
-        serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message ": "회원정보 수정 완료"}, status=status.HTTP_201_CREATED)
         else:
             return Response({"massage" : f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
     

@@ -8,6 +8,23 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("nickname", "username", "email", "profile_img", "birthday",
+                  "created_at", "updated_at")
+
+class MyPageSerializer(serializers.ModelSerializer):
+    drugs = serializers.SerializerMethodField()
+
+    def get_drugs(self, obj):
+        drugs = obj.drugs.all().order_by('-created_at')
+        return DrugsSerializer(instance=drugs, many=True).data
+
+    class Meta:
+        model = User
+        fields = ["drugs"]
+
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         user = get_object_or_404(User, email=attrs[self.username_field])
