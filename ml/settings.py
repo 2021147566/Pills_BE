@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'accounts',
     'drugs',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 REST_FRAMEWORK = {
@@ -111,6 +113,15 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Redis Cache
+# CACHES = {  
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379",
+        
+#     }
+# }
 
 
 # Internationalization
@@ -185,36 +196,15 @@ MEDIAFILES_DIRS = [
 MEDIA_URL = "/media/"
 
 
-# Email 인증을 위한 setting입니다.
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Email 인증 setting
+EMAIL_HOST = 'smtp.gmail.com' 		 # 메일 호스트 서버
+EMAIL_PORT = 587 			 # SMTP 포트 번호
+EMAIL_HOST_USER = 'tkdcks7@gmail.com' 	 # 서비스에서 사용할 Gmail
+EMAIL_HOST_PASSWORD = 'vs142857'         # 서비스에서 사용할 Gmail의 password
+# TLS 보안 설정 - SMTP 서버와 통신할 때 TLS(보안) 연결을 사용할지 여부. 보통 587 포트에서 명시적 TLS 연결에 사용됨. 기본값은 False.
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER	 # 응답 메일 관련 설정
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# EMAIL_USE_TLS = True # TLS 보안 방법
-
-# EMAIL_HOST = 'smtp.gmail.com' # 메일 호스트 서버
-
-# EMAIL_PORT = '587' # gmail과 통신하는 포트
- 
-# EMAIL_HOST_USER = 'tkdcks7@gmail.com' # 발신할 이메일
-
-# EMAIL_HOST_PASSWORD = 'vs142857' # 발신할 메일의 비밀번호
-
-# SERVER_EMAIL = EMAIL_HOST_USER
-
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# URL_FRONT = 'http://****' # 공개적인 웹페이지가 있다면 등록
-
-# ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
-# ACCOUNT_EMAIL_REQUIRED = True
-
-# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-# # ACCOUNT_EMAIL_VERIFICATION = "none"
-
-# EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/' 
-# # 사이트와 관련한 자동응답을 받을 이메일 주소,'webmaster@localhost'
-
-
-# ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
-
-# # 이메일에 자동으로 표시되는 사이트 정보
-# ACCOUNT_EMAIL_SUBJECT_PREFIX = "MLproject입니다."
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'

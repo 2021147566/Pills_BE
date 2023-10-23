@@ -3,6 +3,8 @@ from accounts.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.generics import get_object_or_404
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 
 
@@ -20,7 +22,7 @@ class LoginSerializer(TokenObtainPairSerializer):
             return data
     
     @classmethod
-    def get_token(cls,user):
+    def get_token(cls, user):
         token = super().get_token(user)
         token['email'] = user.email
         token['username'] = user.username
@@ -29,15 +31,25 @@ class LoginSerializer(TokenObtainPairSerializer):
     
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator]
+    )
+
+    username = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator]
+    )
+
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]
+    )
+
     class Meta:
         model = User
-        fields = [
-            'email',
-            'username',
-            'nickname',
-            'birthday',
-            'password'
-        ]
+        fields = ("username", "password", "email", "profile_img", "birthday")
         
 
     def create(self, validated_data):   
