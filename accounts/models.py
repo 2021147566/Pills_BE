@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from drugs.models import Drug
 
 
 class UserManager(BaseUserManager):
@@ -45,6 +46,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField('계정 활성화 여부', default=False)
     is_admin = models.BooleanField('관리자 여부', default=False)
     updated_at = models.DateField('수정일', auto_now=True)
+    durgslist = models.ManyToManyField(Drug, blank=True, related_name='takers')
 
     objects = UserManager()
 

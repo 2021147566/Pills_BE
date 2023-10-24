@@ -7,7 +7,7 @@ from accounts import views
 
 
 urlpatterns = [
-    path("signup/", views.AccountCreate.as_view(), name="signup_view"),
+    path("signup/", views.AccountCreateView.as_view(), name="signup_view"),
     path("login/", views.LoginView.as_view(),
          name="login_view"),
     path('verify-email/<str:uidb64>/<str:token>/', views.EmailVerificationView.as_view(), name='verify_email'),
@@ -16,5 +16,6 @@ urlpatterns = [
     path("profile/<int:user_id>/", views.ProfileView.as_view(), name="profile"),
     path('<str:user_username>/mypage/',
          views.MyPageView.as_view(), name='my_page_view'),
+    path("mocks/", views.Token_Test.as_view(), name="login_test"),
 ]
 
