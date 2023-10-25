@@ -154,13 +154,21 @@ class DrugCreateView(APIView):
                 print(drug_data)
 
                 try:
-                    Drug.objects.get(name=drug_name)
-                    # drug 에 ManyToManyField(User) 추가해서 해당 애트리뷰트에 request.user 저장하기
+                    drug = Drug.objects.get(name=drug_name)
+                    # drug.takers 에 해당 약 저장
+                    # user = request.user
+                    # if drug not in user.taker.all():
+                    #     user.taker.add(drug)
+                    #     user.save()
+                    # else:
+                    #     return Response(
+                    #         data={"message": "이미 등록된 약입니다."}, status=status.HTTP_200_OK
+                    #     )
                     return Response(
                         data={"message": "마이페이지에 저장되었습니다."}, status=status.HTTP_200_OK
                     )
                 except:
-                    Drug.objects.create(
+                    drug = Drug.objects.create(
                         name=drug_data["name"],
                         company=drug_data["company"],
                         drug_image=drug_data["drug_image"],
@@ -168,6 +176,9 @@ class DrugCreateView(APIView):
                         ingredient=drug_data["ingredient"],
                         # user 애트리뷰트도 =request.user 로 저장
                     )
+                    # user = request.user
+                    # user.taker.add(drug)
+                    # user.save()
                     return Response(
                         {"message": "마이페이지에 저장되었습니다."}, status=status.HTTP_201_CREATED
                     )
