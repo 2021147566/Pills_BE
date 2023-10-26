@@ -36,7 +36,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     username = models.CharField("아이디", max_length=30, unique=True)
     password = models.CharField("비밀번호", max_length=255)
-    nickname = models.CharField(max_length=20, unique=True)
+    nickname = models.CharField(max_length=20, unique=False)
     email = models.EmailField(unique=True)
     profile_img = models.ImageField(
         upload_to="media/userProfile",
@@ -44,13 +44,14 @@ class User(AbstractBaseUser):
         blank=True,
         null=True,
     )
-    birthday = models.DateField(blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
-    email_verification_token = models.CharField(max_length=100, null=True, blank=True)
+
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField("관리자 여부", default=False)
     updated_at = models.DateField("수정일", auto_now=True)
     durgslist = models.ManyToManyField(Drug, blank=True, related_name="takers")
+    verified = models.BooleanField(default=False)
 
     objects = UserManager()
 

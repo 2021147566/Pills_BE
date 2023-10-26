@@ -11,6 +11,20 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 from drugs.serializers import DrugCreateSerializer
 from django.contrib.auth.hashers import make_password
+from dj_rest_auth.registration.serializers import RegisterSerializer
+from django.db import transaction
+
+
+class CustomRegisterSerializer(RegisterSerializer):
+    nickname = serializers.CharField(max_length=20)
+
+    # Define transaction.atomic to rollback the save operation in case of error
+    @transaction.atomic
+    def save(self, request):
+        user = super().save(request)
+        user.nickname = self.data.get("nickname")
+        user.save()
+        return user
 
 
 class ProfileSerializer(serializers.ModelSerializer):
