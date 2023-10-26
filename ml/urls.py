@@ -9,6 +9,7 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("accounts/", include("accounts.urls")),
         path("drugs/", include("drugs.urls")),
+        path("emails/", include("allauth.urls")),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
