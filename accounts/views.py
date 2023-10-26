@@ -61,7 +61,7 @@ class ProfileView(APIView):
                 if check_password(request.data["present_pw"], user.password) == True:
                     # 새로 입력한 비밀번호와 비밀번호 확인이 일치하는지 확인.
                     if request.data["password"] == request.data["password_check"]:
-                        serializer = UserSerializer(
+                        serializer = ProfileSerializer(
                             user, data=request.data, partial=True
                         )
                         if serializer.is_valid():
@@ -82,7 +82,7 @@ class ProfileView(APIView):
                     )
 
             else:  # 비밀번호는 변경하지 않을 때
-                serializer = UserSerializer(user, data=request.data, partial=True)
+                serializer = ProfileSerializer(user, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)

@@ -82,6 +82,7 @@ class UserSerializer(serializers.ModelSerializer):
             "password",
             "nickname",
             "email",
+            "profile_img",
         )
 
     def create(self, validated_data):
