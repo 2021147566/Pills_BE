@@ -33,9 +33,7 @@ from dj_rest_auth.registration.views import RegisterView
 
 class HomeView(APIView):
     def get(self, key):
-        return redirect(
-            "http://mlfront.s3-website.ap-northeast-2.amazonaws.com/login.html"
-        )
+        return redirect("http://127.0.0.1:5500/login.html")
 
 
 class MyPageView(APIView):
@@ -48,6 +46,7 @@ class MyPageView(APIView):
 class ProfileView(APIView):
     def get(self, request, user_id):
         """사용자의 프로필을 받아 보여줍니다."""
+        print("get")
         profile = get_object_or_404(User, id=user_id)
         if request.user.email == profile.email:
             serializer = ProfileSerializer(profile)
