@@ -8,6 +8,7 @@ from accounts import views
 
 
 urlpatterns = [
+    path("login/", views.HomeView.as_view(), name="home"),
     path("signup/", views.AccountCreateView.as_view(), name="signup_view"),
     path("dj-rest-auth/", include("dj_rest_auth.urls")),  # 로그인
     # path("dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),

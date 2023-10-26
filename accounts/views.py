@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from rest_framework import status, permissions
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.views import APIView
 from accounts.serializers import (
     MyPageSerializer,
@@ -28,6 +29,11 @@ from rest_framework import views
 from rest_framework.permissions import AllowAny
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from dj_rest_auth.registration.views import RegisterView
+
+
+class HomeView(APIView):
+    def get(self, key):
+        return redirect("http://127.0.0.1:5500/login.html")
 
 
 class MyPageView(APIView):
@@ -100,7 +106,7 @@ class ConfirmEmailView(APIView):
         self.object = confirmation = self.get_object()
         confirmation.confirm(self.request)
         # A React Router Route will handle the failure scenario
-        return Response(data={"message": "회원가입 완료"}, status=status.HTTP_200_OK)  # 인증성공
+        return HttpResponseRedirect("accounts/")  # 인증실패  # 인증성공
 
     def get_object(self, queryset=None):
         key = self.kwargs["key"]
@@ -112,10 +118,7 @@ class ConfirmEmailView(APIView):
                 email_confirmation = queryset.get(key=key.lower())
             except EmailConfirmation.DoesNotExist:
                 # A React Router Route will handle the failure scenario
-                return Response(
-                    data={"message": "인증에 실패했습니다. 이메일을 다시 한 번 확인해 주세요"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )  # 인증실패
+                return HttpResponseRedirect("accounts/")  # 인증실패 # 인증실패
         return email_confirmation
 
     def get_queryset(self):
