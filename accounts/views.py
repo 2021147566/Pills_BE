@@ -33,7 +33,9 @@ from dj_rest_auth.registration.views import RegisterView
 
 class HomeView(APIView):
     def get(self, key):
-        return redirect("http://127.0.0.1:5500/login.html")
+        return redirect(
+            "http://mlfront.s3-website.ap-northeast-2.amazonaws.com/login.html"
+        )
 
 
 class MyPageView(APIView):
