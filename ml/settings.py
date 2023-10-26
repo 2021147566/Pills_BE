@@ -226,7 +226,6 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-STATIC_URL = "/static/"
 
 MEDIAFILES_DIRS = [
     BASE_DIR / "media",
