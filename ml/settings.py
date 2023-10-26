@@ -119,7 +119,7 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7  # 이메일 확인 메일의 유효�
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "My Subject: "  # 이메일 주제 접두사 설정
 ACCOUNT_LOGOUT_ON_GET = True  # GET 요청 시 로그아웃 설정 (보안을 위해 사용)
 
-LOGIN_REDIRECT_URL = "http://mlfront.s3-website.ap-northeast-2.amazonaws.com//main.html"
+LOGIN_REDIRECT_URL = "http://mlfront.s3-website.ap-northeast-2.amazonaws.com/main.html"
 
 WSGI_APPLICATION = "ml.wsgi.application"
 
