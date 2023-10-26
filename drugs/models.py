@@ -9,3 +9,6 @@ class Drug(models.Model):
     drug_image = models.ImageField(null=True, blank=True, upload_to="media/drugImg")
     form = models.CharField(max_length=100)
     ingredient = models.TextField(max_length=200)
+
+    def __str__(self):
+        return self.name
