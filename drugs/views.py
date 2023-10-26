@@ -28,9 +28,9 @@ model = project.version(3).model
 
 # Create your views here.
 class DrugCreateView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request, user_id):
         # print(request.data["img"])
         uploaded_img = request.data["img"]
         if not uploaded_img:
@@ -155,15 +155,16 @@ class DrugCreateView(APIView):
 
                 try:
                     drug = Drug.objects.get(name=drug_name)
+                    print("존재하는 약")
                     # drug.takers 에 해당 약 저장
-                    # user = request.user
-                    # if drug not in user.taker.all():
-                    #     user.taker.add(drug)
-                    #     user.save()
-                    # else:
-                    #     return Response(
-                    #         data={"message": "이미 등록된 약입니다."}, status=status.HTTP_200_OK
-                    #     )
+                    user = User.objects.get(id=user_id)
+                    if drug not in user.durgslist.all():
+                        user.durgslist.add(drug)
+                        user.save()
+                    else:
+                        return Response(
+                            data={"message": "이미 등록된 약입니다."}, status=status.HTTP_200_OK
+                        )
                     return Response(
                         data={"message": "마이페이지에 저장되었습니다."}, status=status.HTTP_200_OK
                     )
@@ -176,9 +177,10 @@ class DrugCreateView(APIView):
                         ingredient=drug_data["ingredient"],
                         # user 애트리뷰트도 =request.user 로 저장
                     )
-                    # user = request.user
-                    # user.taker.add(drug)
-                    # user.save()
+                    user = User.objects.get(id=user_id)
+                    if drug not in user.durgslist.all():
+                        user.durgslist.add(drug)
+                        user.save()
                     return Response(
                         {"message": "마이페이지에 저장되었습니다."}, status=status.HTTP_201_CREATED
                     )

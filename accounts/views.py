@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from rest_framework import status, permissions
 from rest_framework.views import APIView
@@ -7,7 +7,9 @@ from accounts.serializers import (
     ProfileSerializer,
     UserSerializer,
     CustomTokenObtainPairSerializer,
+    CustomRegisterSerializer,
 )
+from django.http import HttpResponseRedirect
 from accounts.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import RetrieveUpdateAPIView, get_object_or_404
@@ -23,6 +25,9 @@ from django.core.mail import send_mail
 
 from accounts.tasks import test_task, send_verification_email
 from rest_framework import views
+from rest_framework.permissions import AllowAny
+from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
+from dj_rest_auth.registration.views import RegisterView
 
 
 class MyPageView(APIView):
@@ -83,29 +88,40 @@ class ProfileView(APIView):
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 
-# class EmailVerificationView(APIView):
-#     def get(self, request, uidb64, token):
-#         try:
-#             uid = force_str(urlsafe_base64_decode(uidb64))
-#             user = User.objects.get(id=uid)
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
+    permission_classes = [permissions.AllowAny]
 
-#             if default_token_generator.check_token(user, token):
-#                 # 사용자 모델의 email_verified 필드를 True로 설정
-#                 # user.email_verified = True
-#                 user.is_active = True
-#                 user.save()
-#                 return Response(
-#                     {"message": "이메일 확인이 완료되었습니다."}, status=status.HTTP_200_OK
-#                 )
-#             else:
-#                 return Response(
-#                     {"message": "이메일 확인 링크가 잘못되었습니다."},
-#                     status=status.HTTP_400_BAD_REQUEST,
-#                 )
-#         except User.DoesNotExist:
-#             return Response(
-#                 {"message": "사용자를 찾을 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST
-#             )
+
+class ConfirmEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, *args, **kwargs):
+        self.object = confirmation = self.get_object()
+        confirmation.confirm(self.request)
+        # A React Router Route will handle the failure scenario
+        return Response(data={"message": "회원가입 완료"}, status=status.HTTP_200_OK)  # 인증성공
+
+    def get_object(self, queryset=None):
+        key = self.kwargs["key"]
+        email_confirmation = EmailConfirmationHMAC.from_key(key)
+        if not email_confirmation:
+            if queryset is None:
+                queryset = self.get_queryset()
+            try:
+                email_confirmation = queryset.get(key=key.lower())
+            except EmailConfirmation.DoesNotExist:
+                # A React Router Route will handle the failure scenario
+                return Response(
+                    data={"message": "인증에 실패했습니다. 이메일을 다시 한 번 확인해 주세요"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )  # 인증실패
+        return email_confirmation
+
+    def get_queryset(self):
+        qs = EmailConfirmation.objects.all_valid()
+        qs = qs.select_related("email_address__user")
+        return qs
 
 
 class AccountCreateView(APIView):
