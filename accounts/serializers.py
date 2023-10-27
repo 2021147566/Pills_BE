@@ -30,11 +30,6 @@ class CustomRegisterSerializer(RegisterSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     durgslist = serializers.StringRelatedField(many=True)
-    profile_img = serializers.SerializerMethodField()
-
-    def get_profile_img(self, obj):
-        user = User.objects.get(username=obj)
-        return user.profile_img.url
 
     class Meta:
         model = User
